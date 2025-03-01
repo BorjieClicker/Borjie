@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borjie Clicker – Ultimate Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #333);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Stats */
+        h1 { font-weight: 600; font-size: 2.5rem; margin-bottom: 20px; }
+        .counter { font-size: 2rem; margin-bottom: 10px; }
+
+        /* Rank Info */
+        .rank-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .rank-tooltip {
+            cursor: pointer;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: red;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+
+        .click-button {
+            width: 180px;
+            height: 180px;
+            margin-top: 25px;
+            border-radius: 50%;
+            background-image: url('IMG_8904.JPG');
+            background-size: cover;
+            cursor: pointer;
+        }
+
+        /* Floating Up Animation */
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-30px); opacity: 0; }
+        }
+
+        /* Flying Image Animations (Falling Down) */
+        .flying-image {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-size: cover;
+            animation: fallDown 5s ease-out forwards;
+            opacity: 0.5;
+            z-index: -1; /* Ensures they fall behind content */
+        }
+
+        @keyframes fallDown {
+            0% { transform: translateY(-200px); opacity: 0.5; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* Reset Button */
+        .reset-button {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: #FF0000;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        /* Base flying image animation */
+.flying-img {
+  position: absolute;
+  width: 40px; /* Size of the image */
+  height: 40px;
+  background-size: cover;
+  opacity: 1;
+  animation: fadeOut 3s ease-out, floatUp 2s ease-out;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: scale(0.8) translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) translateY(-60px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1) translateY(-120px);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+    </style>
+</head>
+<body>
+
+<h1>Borjie Clicker</h1>
+<div class="counter">Clicks: <span id="count">0</span></div>
+
+<!-- Rank System with Tooltip -->
+<div class="rank-container">
+    <div class="rank">Rank: <span id="rankTitle">Clanky Clicker</span></div>
+    <div class="rank-tooltip" id="rankTooltip">!</div>
+</div>
+
+<!-- Reset Button -->
+<button class="reset-button" id="resetProgress">Reset Everything</button>
+
+<!-- Click Button -->
+<div class="click-button" id="clickButton"></div>
+
+<!-- Rank Modal -->
+<div id="rankModal" style="display: none; background: rgba(0, 0, 0, 0.7); color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; border-radius: 10px;">
+    <h3>Ranks</h3>
+    <ul>
+        <li>Clanky Clicker</li>
+        <li>Click Master</li>
+        <li>Click King</li>
+        <li>Epic Clicker</li>
+        <li>Grand Clicker</li>
+        <li>Ultimate Clicker</li>
+    </ul>
+    <button style="background: #FF0000; color: white; padding: 10px; border: none; cursor: pointer;" onclick="closeRankModal()">Close</button>
+</div>
+
+
+<script>
+// Initialize variables
+let count = localStorage.getItem('clickCount') ? parseInt(localStorage.getItem('clickCount')) : 0;
+
+// Update UI
+document.getElementById("count").textContent = count;
+
+// Handle Click
+document.getElementById("clickButton").addEventListener("click", (event) => {
+    count++;
+    document.getElementById("count").textContent = count;
+    localStorage.setItem('clickCount', count);
+    createFlyingImage(event.clientX, event.clientY);
+});
+
+// Create flying image when the rank button is clicked
+document.getElementById("rankTooltip").addEventListener("click", () => {
+    document.getElementById("rankModal").style.display = "block";
+    for (let i = 0; i < 5; i++) {
+        createFlyingImage(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+    }
+});
+
+// Function to create flying images
+function createFlyingImage(x, y) {
+    let flyingImage = document.createElement("div");
+    flyingImage.classList.add("flying-image");
+    flyingImage.style.backgroundImage = "url('IMG_8904.JPG')";
+    flyingImage.style.left = `${x}px`;
+    flyingImage.style.top = `${y}px`;
+    document.body.appendChild(flyingImage);
+    setTimeout(() => flyingImage.remove(), 5000);
+}
+
+// Close the rank modal
+function closeRankModal() {
+    document.getElementById("rankModal").style.display = "none";
+}
+
+// Reset Button Functionality
+document.getElementById("resetProgress").addEventListener("click", () => {
+    if (confirm("Are you sure you want to reset everything?")) {
+        localStorage.removeItem('clickCount');
+        count = 0;
+        document.getElementById("count").textContent = count;
+        document.getElementById("rankTitle").textContent = "Clanky Clicker";
+    }
+});
+document.getElementById("clickButton").addEventListener("click", (event) => {
+  if (!clickCooldown) {
+    clickCooldown = true;
+    count += clickPower * multiplier;
+    document.getElementById("count").textContent = count;
+    localStorage.setItem('clickCount', count);
+    createFlyingImage(event.clientX, event.clientY);  // Apply the flying image animation
+    setTimeout(() => { clickCooldown = false; }, 100);
+  }
+});
+
+function createFlyingImage(x, y) {
+  let img = document.createElement("img");
+  img.src = "IMG_8904.JPG";  // Your image path here
+  img.classList.add("flying-img");  // Add the flying image animation class
+  img.style.left = `${x - 40}px`;  // Adjust image position so it's centered around the click
+  img.style.top = `${y - 40}px`;
+  document.body.appendChild(img);
+
+  setTimeout(() => {
+    img.remove();  // Remove the image after the animation completes
+  }, 3000);  // Matches the duration of the animation
+}
+
+</script>
+
+</body>
+</html>
